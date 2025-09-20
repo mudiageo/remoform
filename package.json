@@ -1,6 +1,7 @@
 {
 	"name": "remoform",
-	"version": "0.0.1",
+	"version": "0.1.0",
+	"description": "The powerful form library for SvelteKit built on remote functions",
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build && npm run prepack",
@@ -30,8 +31,10 @@
 		}
 	},
 	"peerDependencies": {
+		"@sveltejs/kit": "^2.42.0",
 		"svelte": "^5.0.0"
 	},
+
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "^6.0.0",
 		"@sveltejs/kit": "^2.22.0",
@@ -48,8 +51,29 @@
 		"vitest-browser-svelte": "^0.1.0"
 	},
 	"keywords": [
-		"svelte"
+		"svelte",
+		"sveltekit",
+		"forms",
+		"remote-functions",
+		"validation",
+		"typescript",
+		"accessibility",
+		"a11y",
+		"progressive-enhancement"
 	],
+	"license": "MIT",
+	"author": {
+		"name": "Mudia Geo",
+		"url": "https://github.com/mudiageo"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/mudiageo/remoform.git"
+	},
+	"homepage": "https://github.com/mudiageo/remoform#readme",
+	"bugs": {
+		"url": "https://github.com/mudiageo/remoform/issues"
+	},
 	"pnpm": {
 		"onlyBuiltDependencies": [
 			"esbuild"
