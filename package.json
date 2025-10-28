@@ -1,63 +1,56 @@
 {
-	"name": "root",
+	"name": "remoform",
 	"version": "0.1.0",
-	"description": "Monorepo for Remoform",
-	"private": true,
-	"type": "module",
-	"main": "index.js",
+	"description": "The powerful form library for SvelteKit built on remote functions",
 	"scripts": {
-		"build": "pnpm -r build",
-		"build:packages": "pnpm -F \"./packages/**\" --parallel build",
-		"build:content": "pnpm -F \"./docs/**\" --parallel build:content",
-		"dev": "pnpm -F \"./packages/**\" svelte-kit sync && pnpm -r --parallel --reporter append-only --color dev",
-		"docs:dev": "pnpm --filter docs dev",
-		"docs:build": "pnpm --filter docs build",
-		"docs:preview": "pnpm --filter docs preview",
-		"check": "pnpm build:packages && pnpm -r check",
-		"check:watch": "pnpm -r check:watch",
-		"lint": "prettier --check . && eslint .",
-		"lint:fix": "prettier --write . && eslint . --fix",
-		"format:check": "prettier --check .",
-		"test": "pnpm -r test",
-		"test:unit": "pnpm -r test:unit",
-		"test:package": "pnpm -F \"./packages/**\" test",
-		"test:package:watch": "pnpm -F \"./packages/**\" test:watch",
-		"format": "prettier --write .",
-		"sync": "pnpm -r sync",
-		"changeset": "changeset",
-		"version": "changeset version",
-		"release": "pnpm build && changeset publish",
-		"ci:publish": "pnpm build:packages && changeset publish"
+		"dev": "vite dev",
+		"build": "vite build && npm run prepack",
+		"preview": "vite preview",
+		"prepare": "svelte-kit sync || echo ''",
+		"prepack": "svelte-kit sync && svelte-package && publint",
+		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+		"test:unit": "vitest",
+		"test": "npm run test:unit -- --run"
 	},
-	"engines": {
-		"node": ">=18.0.0",
-		"pnpm": ">=9.0.0"
+	"files": [
+		"dist",
+		"!dist/**/*.test.*",
+		"!dist/**/*.spec.*"
+	],
+	"sideEffects": [
+		"**/*.css"
+	],
+	"svelte": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"type": "module",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"svelte": "./dist/index.js"
+		}
 	},
 	"peerDependencies": {
 		"@sveltejs/kit": "^2.42.0",
 		"svelte": "^5.0.0"
 	},
 	"devDependencies": {
-		"@changesets/changelog-github": "^0.5.0",
-		"@changesets/cli": "^2.27.10",
-		"@eslint/js": "^9.12.0",
-		"@svitejs/changesets-changelog-github-compact": "^1.2.0",
-		"@typescript-eslint/eslint-plugin": "^8.10.0",
-		"@typescript-eslint/parser": "^8.0.0",
-		"@typescript-eslint/scope-manager": "^8.10.0",
-		"@typescript-eslint/utils": "^8.10.0",
-		"eslint": "^9.0.0",
-		"eslint-config-prettier": "^9.1.0",
-		"eslint-plugin-svelte": "^2.46.1",
-		"globals": "^15.11.0",
-		"prettier": "^3.3.3",
-		"prettier-plugin-svelte": "^3.3.2",
-		"prettier-plugin-tailwindcss": "^0.6.8",
-		"svelte": "^5.11.0",
-		"svelte-eslint-parser": "^0.43.0",
-		"typescript": "^5.6.3",
-		"typescript-eslint": "^8.10.0",
-		"wrangler": "^3.91.0"
+		"@standard-schema/spec": "^1.0.0",
+		"@sveltejs/adapter-auto": "^6.0.0",
+		"@sveltejs/kit": "^2.22.0",
+		"@sveltejs/package": "^2.0.0",
+		"@sveltejs/vite-plugin-svelte": "^6.0.0",
+		"@vitest/browser": "^3.2.3",
+		"playwright": "^1.53.0",
+		"publint": "^0.3.2",
+		"svelte": "^5.0.0",
+		"svelte-check": "^4.0.0",
+		"typescript": "^5.0.0",
+		"valibot": "^1.1.0",
+		"vite": "^7.0.4",
+		"vitest": "^3.2.3",
+		"vitest-browser-svelte": "^0.1.0",
+		"zod": "^4.1.11"
 	},
 	"keywords": [
 		"svelte",
@@ -82,5 +75,10 @@
 	"homepage": "https://github.com/mudiageo/remoform#readme",
 	"bugs": {
 		"url": "https://github.com/mudiageo/remoform/issues"
+	},
+	"pnpm": {
+		"onlyBuiltDependencies": [
+			"esbuild"
+		]
 	}
 }

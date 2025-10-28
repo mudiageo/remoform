@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { getFieldContext, type LabelProps } from "../form.svelte.js";
+	import { getFieldContext, type LabelProps } from '../form.svelte.js';
 
 	let { children }: LabelProps = $props();
 

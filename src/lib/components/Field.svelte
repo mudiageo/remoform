@@ -1,17 +1,12 @@
 <script lang="ts">
-	import {
-		setFieldContext,
-		generateId,
-		type RemoformFieldContext,
-		type FieldProps,
-	} from "../form.svelte.js";
+	import { setFieldContext, generateId, type RemoformFieldContext, type FieldProps } from '../form.svelte.js';
 
 	let { form, name, children }: FieldProps = $props();
 
-	const fieldId = generateId("field");
-	const labelId = generateId("label");
-	const descriptionId = generateId("description");
-	const errorId = generateId("error");
+	const fieldId = generateId('field');
+	const labelId = generateId('label');
+	const descriptionId = generateId('description');
+	const errorId = generateId('error');
 
 	const hasErrors = $derived((form.remoteForm.issues?.[name]?.length ?? 0) > 0);
 	const errors = $derived(form.remoteForm.issues?.[name] || []);
@@ -30,10 +25,12 @@
 		get errors() {
 			return form.remoteForm.issues?.[name] || [];
 		},
-		value,
+		value
 	});
 
 	setFieldContext(() => fieldContext);
+	
+
 </script>
 
 <div class="remoform-field" data-field={name}>

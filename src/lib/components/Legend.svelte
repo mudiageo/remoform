@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { getFieldContext, type LegendProps } from "../form.svelte.js";
+	import { getFieldContext, type LegendProps } from '../form.svelte.js';
 
 	let { children }: LegendProps = $props();
 
