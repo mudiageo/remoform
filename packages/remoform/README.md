@@ -2,7 +2,7 @@
 
 The powerful form library for SvelteKit built on remote functions. Remoform provides a seamless way to handle form validation, submission, and state management by leveraging SvelteKit's `form` remote function properties.
 
-> **Heavily inspired by [Formsnap](https://formsnap.dev)** - This library builds upon the excellent work done on , adapting their accessible form component patterns for SvelteKit's remote functions API.
+> **Heavily inspired by [Formsnap](https://formsnap.dev)** - This library builds upon the excellent work done on Formsnap, adapting their accessible form component patterns for SvelteKit's remote functions API.
 
 ## Installation
 
