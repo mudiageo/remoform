@@ -4,12 +4,11 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Tag to publish'
+        description: "Tag to publish"
         required: true
         type: string
   release:
     types: [created]
-
 
 jobs:
   publish:
@@ -25,7 +24,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          registry-url: 'https://registry.npmjs.org'
+          registry-url: "https://registry.npmjs.org"
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4

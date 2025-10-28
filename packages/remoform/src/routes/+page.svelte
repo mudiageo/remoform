@@ -1,15 +1,20 @@
 <script>
-	import * as v from 'valibot';
-	import { createForm, Field, Control, Label, Description, FieldErrors } from '$lib/index.js';
-	import { createUser, getUsers } from './demo.remote.js';
+	import * as v from "valibot";
+	import { createForm, Field, Control, Label, Description, FieldErrors } from "$lib/index.js";
+	import { createUser, getUsers } from "./demo.remote.js";
 
 	// Create the form with preflight validation and client-side schema
 	const schema = v.object({
-		name: v.pipe(v.string(), v.nonEmpty('Name is required')),
-		email: v.pipe(v.string(), v.email('Please enter a valid email')),
-		age: v.pipe(v.string(), v.transform(Number), v.number('Age must be a number'), v.minValue(18, 'Must be at least 18')),
-		_password: v.pipe(v.string(), v.minLength(8, 'Password must be at least 8 characters')),
-		bio: v.optional(v.string())
+		name: v.pipe(v.string(), v.nonEmpty("Name is required")),
+		email: v.pipe(v.string(), v.email("Please enter a valid email")),
+		age: v.pipe(
+			v.string(),
+			v.transform(Number),
+			v.number("Age must be a number"),
+			v.minValue(18, "Must be at least 18")
+		),
+		_password: v.pipe(v.string(), v.minLength(8, "Password must be at least 8 characters")),
+		bio: v.optional(v.string()),
 	});
 
 	// Create form using the helper function
@@ -17,145 +22,123 @@
 		preflight: true,
 		includeUntouched: true,
 		schema,
-		validationMethod: 'oninput',
-		scrollToError: 'smooth'
+		validationMethod: "oninput",
+		scrollToError: "smooth",
 	});
-
 </script>
 
 <div class="container">
 	<h1>Remoform - SvelteKit Remote Functions</h1>
 	<p>A modern form library built on SvelteKit's remote functions API with Valibot validation</p>
-	
+
 	<div class="form-section">
 		<h2>Create User Account</h2>
-		
+
 		<!-- The form object can be spread directly, providing all HTML attributes -->
 		<form {...form.remoteForm} class="example-form">
-		<Field {form} name="email">
-			<Label>Email Address</Label>
-			<Control>
-				{#snippet children({ props })}
-					<input 
-						type="email" 
-						{...props} 
-						class="input"
-					/>
-				{/snippet}
-			</Control>
-			<Description>We'll send you important updates via email.</Description>
-			<FieldErrors />
-		</Field>
+			<Field {form} name="email">
+				<Label>Email Address</Label>
+				<Control>
+					{#snippet children({ props })}
+						<input type="email" {...props} class="input" />
+					{/snippet}
+				</Control>
+				<Description>We'll send you important updates via email.</Description>
+				<FieldErrors />
+			</Field>
 
-		<Field {form} name="name">
-			<Label>Full Name</Label>
-			<Control>
-				{#snippet children({ props })}
-					<input 
-						type="text" 
-						{...props} 
-						class="input"
-					/>
-				{/snippet}
-			</Control>
-			<Description>Enter your full name as it appears on official documents</Description>
-			<FieldErrors />
-		</Field>
+			<Field {form} name="name">
+				<Label>Full Name</Label>
+				<Control>
+					{#snippet children({ props })}
+						<input type="text" {...props} class="input" />
+					{/snippet}
+				</Control>
+				<Description>Enter your full name as it appears on official documents</Description>
+				<FieldErrors />
+			</Field>
 
-		<Field {form} name="age">
-			<Label>Age</Label>
-			<Control>
-				{#snippet children({ props })}
-					<input 
-						type="number" 
-						{...props} 
-						class="input"
-					/>
-				{/snippet}
-			</Control>
-			<Description>Must be 18 or older to create an account</Description>
-			<FieldErrors />
-		</Field>
+			<Field {form} name="age">
+				<Label>Age</Label>
+				<Control>
+					{#snippet children({ props })}
+						<input type="number" {...props} class="input" />
+					{/snippet}
+				</Control>
+				<Description>Must be 18 or older to create an account</Description>
+				<FieldErrors />
+			</Field>
 
-		<!-- Sensitive field with underscore prefix - won't be sent back on validation errors -->
-		<Field {form} name="_password">
-			<Label>Password</Label>
-			<Control>
-				{#snippet children({ props })}
-					<input 
-						type="password" 
-						{...props} 
-						class="input"
-					/>
-				{/snippet}
-			</Control>
-			<Description>Choose a strong password (min 8 characters)</Description>
-			<FieldErrors />
-		</Field>
+			<!-- Sensitive field with underscore prefix - won't be sent back on validation errors -->
+			<Field {form} name="_password">
+				<Label>Password</Label>
+				<Control>
+					{#snippet children({ props })}
+						<input type="password" {...props} class="input" />
+					{/snippet}
+				</Control>
+				<Description>Choose a strong password (min 8 characters)</Description>
+				<FieldErrors />
+			</Field>
 
-		<Field {form} name="bio">
-			<Label>Bio (Optional)</Label>
-			<Control>
-				{#snippet children({ props })}
-					<textarea 
-						{...props} 
-						class="textarea"
-						rows="3"
-					></textarea>
-				{/snippet}
-			</Control>
-			<Description>Tell us a bit about yourself</Description>
-			<FieldErrors />
-		</Field>
+			<Field {form} name="bio">
+				<Label>Bio (Optional)</Label>
+				<Control>
+					{#snippet children({ props })}
+						<textarea {...props} class="textarea" rows="3"></textarea>
+					{/snippet}
+				</Control>
+				<Description>Tell us a bit about yourself</Description>
+				<FieldErrors />
+			</Field>
 
-		<button type="submit" class="submit-button">
-			Create Account
-		</button>
-	</form>
+			<button type="submit" class="submit-button"> Create Account </button>
+		</form>
 
-	{#if form.remoteForm.result?.success}
-		<div class="success-message">
-			<p>✅ User created successfully!</p>
-			<p>User ID: {form.remoteForm.result.userId}</p>
-		</div>
-	{/if}
-</div>
-
-<div class="live-section">
-	<h2>Form State (Live)</h2>
-	<div class="state-display">
-		<h3>Current Input</h3>
-		<pre class="values-display">{JSON.stringify(form.remoteForm.input, null, 2)}</pre>
-		
-		{#if form.remoteForm.issues && Object.keys(form.remoteForm.issues).length > 0}
-			<h3>Validation Issues</h3>
-			<pre class="errors-display">{JSON.stringify(form.remoteForm.issues, null, 2)}</pre>
+		{#if form.remoteForm.result?.success}
+			<div class="success-message">
+				<p>✅ User created successfully!</p>
+				<p>User ID: {form.remoteForm.result.userId}</p>
+			</div>
 		{/if}
 	</div>
-</div>
 
-<div class="users-section">
-	<h2>Users</h2>
-	<div class="users-container">
-		{#await getUsers()}
-			<p>Loading users...</p>
-		{:then users}
-			{#each users as user (user.id)}
-				<div class="user-card">
-					<h3>{user.name}</h3>
-					<p><strong>Email:</strong> {user.email}</p>
-					{#if user.bio}
-						<p><strong>Bio:</strong> {user.bio}</p>
-					{/if}
-					<p><strong>Age:</strong> {user.age}</p>
-				</div>
-			{/each}
-		{:catch error}
-			<p>Error loading users: {error.message}</p>
-		{/await}
+	<div class="live-section">
+		<h2>Form State (Live)</h2>
+		<div class="state-display">
+			<h3>Current Input</h3>
+			<pre class="values-display">{JSON.stringify(form.remoteForm.input, null, 2)}</pre>
+
+			{#if form.remoteForm.issues && Object.keys(form.remoteForm.issues).length > 0}
+				<h3>Validation Issues</h3>
+				<pre class="errors-display">{JSON.stringify(form.remoteForm.issues, null, 2)}</pre>
+			{/if}
+		</div>
+	</div>
+
+	<div class="users-section">
+		<h2>Users</h2>
+		<div class="users-container">
+			{#await getUsers()}
+				<p>Loading users...</p>
+			{:then users}
+				{#each users as user (user.id)}
+					<div class="user-card">
+						<h3>{user.name}</h3>
+						<p><strong>Email:</strong> {user.email}</p>
+						{#if user.bio}
+							<p><strong>Bio:</strong> {user.bio}</p>
+						{/if}
+						<p><strong>Age:</strong> {user.age}</p>
+					</div>
+				{/each}
+			{:catch error}
+				<p>Error loading users: {error.message}</p>
+			{/await}
+		</div>
 	</div>
 </div>
-</div>
+
 <style>
 	.container {
 		max-width: 800px;
@@ -164,7 +147,9 @@
 		font-family: system-ui, sans-serif;
 	}
 
-	.form-section, .live-section, .users-section {
+	.form-section,
+	.live-section,
+	.users-section {
 		margin-bottom: 3rem;
 	}
 
@@ -175,7 +160,9 @@
 		border: 1px solid #e5e7eb;
 	}
 
-	.input, .textarea, .select {
+	.input,
+	.textarea,
+	.select {
 		width: 100%;
 		padding: 0.5rem 0.75rem;
 		border: 1px solid #d1d5db;
@@ -184,7 +171,9 @@
 		transition: border-color 0.15s ease-in-out;
 	}
 
-	.input:focus, .textarea:focus, .select:focus {
+	.input:focus,
+	.textarea:focus,
+	.select:focus {
 		outline: none;
 		border-color: #3b82f6;
 		box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
@@ -222,7 +211,8 @@
 		padding: 1.5rem;
 	}
 
-	.values-display, .errors-display {
+	.values-display,
+	.errors-display {
 		background: #f3f4f6;
 		padding: 1rem;
 		border-radius: 0.375rem;
@@ -257,7 +247,9 @@
 		color: #6b7280;
 	}
 
-	h1, h2, h3 {
+	h1,
+	h2,
+	h3 {
 		color: #1f2937;
 	}
 

@@ -16,7 +16,7 @@ npm i remoform valibot
 
 - **Remote Validation**: Validate forms on the server using remote functions
 - **Progressive Enhancement**: Works with and without JavaScript
-- **Type Safety**: Full TypeScript support with schema inference  
+- **Type Safety**: Full TypeScript support with schema inference
 - **Accessible**: Built-in accessibility features and ARIA attributes
 - **Framework Agnostic**: Works with any validation library (Zod, Valibot, etc.)
 
@@ -35,7 +35,7 @@ export const userSchema = z.object({
 	preferences: z.object({
 		newsletter: z.boolean().default(false),
 		theme: z.enum(["light", "dark"]).default("light"),
-	})
+	}),
 });
 
 export type UserForm = z.infer<typeof userSchema>;
@@ -45,8 +45,8 @@ export type UserForm = z.infer<typeof userSchema>;
 
 ```ts
 // routes/profile/demo.remote.ts
-import * as v from 'valibot';
-import { form, query } from '$app/server';
+import * as v from "valibot";
+import { form, query } from "$app/server";
 
 // In-memory store for demo purposes
 let users: { id: string; email: string; name: string; age: number; bio?: string }[] = [];
@@ -58,9 +58,9 @@ export const getUsers = query(async () => {
 
 // Query function to get user by ID
 export const getUserById = query(v.string(), async (id) => {
-	const user = users.find(u => u.id === id);
+	const user = users.find((u) => u.id === id);
 	if (!user) {
-		throw new Error('User not found');
+		throw new Error("User not found");
 	}
 	return user;
 });
@@ -68,32 +68,37 @@ export const getUserById = query(v.string(), async (id) => {
 // Form function that creates a user
 export const createUser = form(
 	v.object({
-		name: v.pipe(v.string(), v.nonEmpty('Name is required')),
-		email: v.pipe(v.string(), v.email('Please enter a valid email')),
-		age: v.pipe(v.string(), v.transform(Number), v.number('Age must be a number'), v.minValue(18, 'Must be at least 18')),
-		_password: v.pipe(v.string(), v.minLength(8, 'Password must be at least 8 characters')), // Sensitive data with underscore
-		bio: v.optional(v.string())
+		name: v.pipe(v.string(), v.nonEmpty("Name is required")),
+		email: v.pipe(v.string(), v.email("Please enter a valid email")),
+		age: v.pipe(
+			v.string(),
+			v.transform(Number),
+			v.number("Age must be a number"),
+			v.minValue(18, "Must be at least 18")
+		),
+		_password: v.pipe(v.string(), v.minLength(8, "Password must be at least 8 characters")), // Sensitive data with underscore
+		bio: v.optional(v.string()),
 	}),
 	async (data) => {
 		// Simulate API delay
-		await new Promise(resolve => setTimeout(resolve, 1000));
-		
+		await new Promise((resolve) => setTimeout(resolve, 1000));
+
 		const newUser = {
 			id: Math.random().toString(36).substr(2, 9),
-			...data
+			...data,
 		};
-		
+
 		users.push(newUser);
-		
+
 		// Refresh the users query
 		await getUsers().refresh();
-		
+
 		// Return success result
-		return { 
-			success: true, 
+		return {
+			success: true,
 			message: `User ${data.name} created successfully!`,
 			userId: newUser.id,
-			user: newUser
+			user: newUser,
 		};
 	}
 );
@@ -104,17 +109,22 @@ export const createUser = form(
 ```svelte
 <!-- routes/profile/+page.svelte -->
 <script>
-	import * as v from 'valibot';
-	import { createForm, Field, Control, Label, Description, FieldErrors } from 'remoform';
-	import { createUser } from './demo.remote.js';
+	import * as v from "valibot";
+	import { createForm, Field, Control, Label, Description, FieldErrors } from "remoform";
+	import { createUser } from "./demo.remote.js";
 
 	// Define your client-side schema
 	const schema = v.object({
-		email: v.pipe(v.string(), v.email('Please enter a valid email')),
-		name: v.pipe(v.string(), v.nonEmpty('Name is required')),
-		age: v.pipe(v.string(), v.transform(Number), v.number('Age must be a number'), v.minValue(18, 'Must be at least 18')),
-		_password: v.pipe(v.string(), v.minLength(8, 'Password must be at least 8 characters')),
-		bio: v.optional(v.string())
+		email: v.pipe(v.string(), v.email("Please enter a valid email")),
+		name: v.pipe(v.string(), v.nonEmpty("Name is required")),
+		age: v.pipe(
+			v.string(),
+			v.transform(Number),
+			v.number("Age must be a number"),
+			v.minValue(18, "Must be at least 18")
+		),
+		_password: v.pipe(v.string(), v.minLength(8, "Password must be at least 8 characters")),
+		bio: v.optional(v.string()),
 	});
 
 	// Create form using the remote function
@@ -122,8 +132,8 @@ export const createUser = form(
 		preflight: true,
 		includeUntouched: true,
 		schema,
-		validationMethod: 'oninput',
-		scrollToError: 'smooth'
+		validationMethod: "oninput",
+		scrollToError: "smooth",
 	});
 </script>
 
@@ -133,11 +143,7 @@ export const createUser = form(
 		<Label>Email Address</Label>
 		<Control>
 			{#snippet children({ props })}
-				<input 
-					type="email" 
-					{...props} 
-					class="input"
-				/>
+				<input type="email" {...props} class="input" />
 			{/snippet}
 		</Control>
 		<Description>We'll send you important updates via email.</Description>
@@ -148,11 +154,7 @@ export const createUser = form(
 		<Label>Full Name</Label>
 		<Control>
 			{#snippet children({ props })}
-				<input 
-					type="text" 
-					{...props} 
-					class="input"
-				/>
+				<input type="text" {...props} class="input" />
 			{/snippet}
 		</Control>
 		<Description>Enter your full name</Description>
@@ -163,11 +165,7 @@ export const createUser = form(
 		<Label>Age</Label>
 		<Control>
 			{#snippet children({ props })}
-				<input 
-					type="number" 
-					{...props} 
-					class="input"
-				/>
+				<input type="number" {...props} class="input" />
 			{/snippet}
 		</Control>
 		<Description>Must be 18 or older</Description>
@@ -179,11 +177,7 @@ export const createUser = form(
 		<Label>Password</Label>
 		<Control>
 			{#snippet children({ props })}
-				<input 
-					type="password" 
-					{...props} 
-					class="input"
-				/>
+				<input type="password" {...props} class="input" />
 			{/snippet}
 		</Control>
 		<Description>Choose a strong password (min 8 characters)</Description>
@@ -194,20 +188,14 @@ export const createUser = form(
 		<Label>Bio (Optional)</Label>
 		<Control>
 			{#snippet children({ props })}
-				<textarea 
-					{...props} 
-					class="textarea"
-					rows="3"
-				></textarea>
+				<textarea {...props} class="textarea" rows="3"></textarea>
 			{/snippet}
 		</Control>
 		<Description>Tell us a bit about yourself</Description>
 		<FieldErrors />
 	</Field>
 
-	<button type="submit" class="submit-button">
-		Create Account
-	</button>
+	<button type="submit" class="submit-button"> Create Account </button>
 </form>
 
 {#if form.remoteForm.result?.success}
@@ -224,7 +212,7 @@ Remoform also supports query functions for reactive data fetching:
 
 ```svelte
 <script>
-	import { getUsers, getUserById } from './demo.remote.js';
+	import { getUsers, getUserById } from "./demo.remote.js";
 </script>
 
 <!-- Display all users -->
@@ -253,11 +241,11 @@ Remoform also supports query functions for reactive data fetching:
 
 ```ts
 const form = createForm(remoteFunction, {
-	preflight: true,              // Validate on client before sending
-	includeUntouched: true,       // Include untouched fields in validation
-	schema,                       // Client-side validation schema
-	validationMethod: 'oninput',  // When to validate ('oninput', 'onblur', etc.)
-	scrollToError: 'smooth'       // Scroll behavior on validation errors
+	preflight: true, // Validate on client before sending
+	includeUntouched: true, // Include untouched fields in validation
+	schema, // Client-side validation schema
+	validationMethod: "oninput", // When to validate ('oninput', 'onblur', etc.)
+	scrollToError: "smooth", // Scroll behavior on validation errors
 });
 ```
 
