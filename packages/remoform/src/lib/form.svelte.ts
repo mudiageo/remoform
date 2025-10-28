@@ -1,11 +1,10 @@
-import { getContext, setContext } from 'svelte';
-import type { Snippet } from 'svelte';
-import type { RemoteForm, RemoteFormInput } from '@sveltejs/kit';
-import type { StandardSchemaV1 } from '@standard-schema/spec';
+import { getContext, setContext } from "svelte";
+import type { Snippet } from "svelte";
+import type { RemoteForm, RemoteFormInput } from "@sveltejs/kit";
+import type { StandardSchemaV1 } from "@standard-schema/spec";
 
-
-const REMOFORM_FORM_CONTEXT_KEY = Symbol.for('remoform-form');
-const REMOFORM_FIELD_CONTEXT_KEY = Symbol.for('remoform-field');
+const REMOFORM_FORM_CONTEXT_KEY = Symbol.for("remoform-form");
+const REMOFORM_FIELD_CONTEXT_KEY = Symbol.for("remoform-field");
 
 export interface RemoformRemoteForm<TInput extends RemoteFormInput = any, TOutput = any>
 	extends RemoteForm<TInput, TOutput> {
@@ -31,12 +30,12 @@ export interface RemoformFieldContext {
 export interface ControlProps {
 	id: string;
 	name: string;
-	'aria-describedby': string;
-	'aria-invalid': boolean;
-	'aria-labelledby': string;
-	'aria-required': "true" | undefined;
-	'data-remoform-control': string;
-	'data-remoform-error': string | undefined;
+	"aria-describedby": string;
+	"aria-invalid": boolean;
+	"aria-labelledby": string;
+	"aria-required": "true" | undefined;
+	"data-remoform-control": string;
+	"data-remoform-error": string | undefined;
 	value: any;
 }
 
@@ -82,7 +81,9 @@ export function setFormContext(form: Remoform) {
 export function getFormContext(): Remoform {
 	const form = getContext<Remoform>(REMOFORM_FORM_CONTEXT_KEY);
 	if (!form) {
-		throw new Error('Form context not found. Make sure to use form components within a Field component.');
+		throw new Error(
+			"Form context not found. Make sure to use form components within a Field component."
+		);
 	}
 	return form;
 }
@@ -100,7 +101,9 @@ export function setFieldContext(context: () => RemoformFieldContext) {
 export function getFieldContext(): RemoformFieldContext {
 	const context = getContext<RemoformFieldContext>(REMOFORM_FIELD_CONTEXT_KEY);
 	if (!context) {
-		throw new Error('Field context not found. Make sure to use this component within a Field component.');
+		throw new Error(
+			"Field context not found. Make sure to use this component within a Field component."
+		);
 	}
 	return context;
 }
@@ -108,30 +111,30 @@ export function getFieldContext(): RemoformFieldContext {
 /**
  * Generates a unique ID for form elements
  */
-export function generateId(prefix: string = 'remoform'): string {
+export function generateId(prefix: string = "remoform"): string {
 	return `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
 }
 
 // CreateForm options interface
 export interface CreateFormOptions<TSchema extends StandardSchemaV1 = StandardSchemaV1> {
 	// Core validation options
-	validationMethod?: 'auto' | 'oninput' | 'onblur' | 'onsubmit' | 'onchange';
-	clearOnSubmit?: 'errors-and-message' | 'message' | 'errors' | 'none';
-	
+	validationMethod?: "auto" | "oninput" | "onblur" | "onsubmit" | "onchange";
+	clearOnSubmit?: "errors-and-message" | "message" | "errors" | "none";
+
 	// Preflight validation
 	preflight?: boolean;
 	schema?: TSchema extends StandardSchemaV1 ? TSchema : never;
 	includeUntouched?: boolean;
-	
+
 	// Basic form options
 	id?: string;
 	resetForm?: boolean | (() => boolean);
 	taintedMessage?: boolean | string | (() => Promise<boolean>);
-	multipleSubmits?: 'prevent' | 'allow' | 'abort';
-	
+	multipleSubmits?: "prevent" | "allow" | "abort";
+
 	// Error handling
-	scrollToError?: 'auto' | 'smooth' | 'off' | boolean | ScrollIntoViewOptions;
-	autoFocusOnError?: 'detect' | boolean;
+	scrollToError?: "auto" | "smooth" | "off" | boolean | ScrollIntoViewOptions;
+	autoFocusOnError?: "detect" | boolean;
 	errorSelector?: string;
 	selectErrorText?: boolean;
 }
@@ -139,64 +142,70 @@ export interface CreateFormOptions<TSchema extends StandardSchemaV1 = StandardSc
 // Extract required fields from a StandardSchema
 function extractRequiredFields(schema: StandardSchemaV1): Set<string> {
 	const requiredFields = new Set<string>();
-	
+
 	// Test with an empty object to see which fields are required
-	const result = schema['~standard'].validate({});
-	
+	const result = schema["~standard"].validate({});
+
 	// Handle both sync and async validation results
 	if (result instanceof Promise) {
 		// For async validation, we can't determine required fields synchronously
 		return requiredFields;
 	}
-	
+
 	if (!result.success) {
 		for (const issue of result.issues) {
 			if (issue.path && issue.path.length > 0) {
 				const fieldName = String(issue.path[0]);
 				// Common messages that indicate required fields
-				if (issue.message?.toLowerCase().includes('required') || 
-					issue.code === 'required' ||
-					issue.message?.toLowerCase().includes('missing')) {
+				if (
+					issue.message?.toLowerCase().includes("required") ||
+					issue.code === "required" ||
+					issue.message?.toLowerCase().includes("missing")
+				) {
 					requiredFields.add(fieldName);
 				}
 			}
 		}
 	}
-	
+
 	return requiredFields;
 }
 
 // Error handling utilities
 export function scrollToError(
 	form: HTMLFormElement,
-	options: 'auto' | 'smooth' | 'off' | boolean | ScrollIntoViewOptions = 'auto'
+	options: "auto" | "smooth" | "off" | boolean | ScrollIntoViewOptions = "auto"
 ) {
-	if (options === 'off' || options === false) return;
-	
+	if (options === "off" || options === false) return;
+
 	const errorElement = form.querySelector('[aria-invalid="true"]') as HTMLElement;
 	if (!errorElement) return;
-	
-	const scrollOptions: ScrollIntoViewOptions = 
-		typeof options === 'object' ? options :
-		options === 'smooth' ? { behavior: 'smooth', block: 'center' } :
-		{ behavior: 'auto', block: 'center' };
-	
+
+	const scrollOptions: ScrollIntoViewOptions =
+		typeof options === "object"
+			? options
+			: options === "smooth"
+				? { behavior: "smooth", block: "center" }
+				: { behavior: "auto", block: "center" };
+
 	errorElement.scrollIntoView(scrollOptions);
 }
 
-export function autoFocusOnError(
-	form: HTMLFormElement,
-	options: 'detect' | boolean = 'detect'
-) {
+export function autoFocusOnError(form: HTMLFormElement, options: "detect" | boolean = "detect") {
 	if (options === false) return;
-	
+
 	const errorElement = form.querySelector('[aria-invalid="true"]') as HTMLInputElement;
 	if (!errorElement) return;
-	
+
 	errorElement.focus();
-	
+
 	// Select text if it's an input field and selectErrorText is enabled
-	if (errorElement.select && (errorElement.type === 'text' || errorElement.type === 'email' || errorElement.type === 'password')) {
+	if (
+		errorElement.select &&
+		(errorElement.type === "text" ||
+			errorElement.type === "email" ||
+			errorElement.type === "password")
+	) {
 		errorElement.select();
 	}
 }
@@ -209,36 +218,35 @@ export class Remoform<TSchema extends StandardSchemaV1 = StandardSchemaV1> {
 	private formName: string;
 	public readonly options: CreateFormOptions<TSchema>;
 
-	constructor(
-		originalRemoteForm: RemoformRemoteForm,
-		options: CreateFormOptions<TSchema> = {}
-	) {
+	constructor(originalRemoteForm: RemoformRemoteForm, options: CreateFormOptions<TSchema> = {}) {
 		if (options.preflight && !options.schema) {
-			throw new Error('Schema is required when preflight validation is enabled');
+			throw new Error("Schema is required when preflight validation is enabled");
 		}
 
 		this.originalRemoteForm = originalRemoteForm;
 		this.options = {
-			validationMethod: 'auto',
-			clearOnSubmit: 'errors-and-message',
+			validationMethod: "auto",
+			clearOnSubmit: "errors-and-message",
 			preflight: false,
-			multipleSubmits: 'prevent',
-			scrollToError: 'auto',
-			autoFocusOnError: 'detect',
+			multipleSubmits: "prevent",
+			scrollToError: "auto",
+			autoFocusOnError: "detect",
 			errorSelector: '[aria-invalid="true"]',
 			selectErrorText: true,
 			resetForm: false,
-			...options
+			...options,
 		};
 
-		// Apply preflight if enabled	
-		const remoteForm = $derived(this.options.preflight && this.options.schema 
-		? this.originalRemoteForm.preflight(this.options.schema)
-		: this.originalRemoteForm);
-		
+		// Apply preflight if enabled
+		const remoteForm = $derived(
+			this.options.preflight && this.options.schema
+				? this.originalRemoteForm.preflight(this.options.schema)
+				: this.originalRemoteForm
+		);
+
 		const enhancedForm = remoteForm.enhance(this.createEnhanceCallback);
-		
-		Object.getOwnPropertySymbols(remoteForm).forEach(symbol => {
+
+		Object.getOwnPropertySymbols(remoteForm).forEach((symbol) => {
 			const enhanceSymbol = Object.getOwnPropertySymbols(enhancedForm)[0];
 			if (enhanceSymbol) {
 				delete remoteForm[symbol];
@@ -246,49 +254,61 @@ export class Remoform<TSchema extends StandardSchemaV1 = StandardSchemaV1> {
 			}
 		});
 
-
 		// Copy only enumerable properties from remoteForm (no symbols)
-		this.remoteForm = Object.defineProperties(remoteForm, Object.getOwnPropertyDescriptors(this.formEventHandlers));
-			
-
+		this.remoteForm = Object.defineProperties(
+			remoteForm,
+			Object.getOwnPropertyDescriptors(this.formEventHandlers)
+		);
 
 		// Extract required fields from schema if provided
-		this.requiredFields = this.options.schema ? extractRequiredFields(this.options.schema) : new Set<string>();
+		this.requiredFields = this.options.schema
+			? extractRequiredFields(this.options.schema)
+			: new Set<string>();
 
 		// Generate form name if not provided
 		this.formName = this.options.id || `remoform-${Math.random().toString(36).substr(2, 9)}`;
 	}
 
-	private createEnhanceCallback = async ({ form, data, submit }: { form: HTMLFormElement, data: FormData, submit: () => Promise<any> }) => {
+	private createEnhanceCallback = async ({
+		form,
+		data,
+		submit,
+	}: {
+		form: HTMLFormElement;
+		data: FormData;
+		submit: () => Promise<any>;
+	}) => {
 		try {
 			// Handle multiple submits prevention
-			if (this.options.multipleSubmits === 'prevent' && this.remoteForm.pending) {
+			if (this.options.multipleSubmits === "prevent" && this.remoteForm.pending) {
 				return;
 			}
-			alert('enhace running')
+			console.log("enhance running");
 			// Clear errors/messages based on clearOnSubmit option
-			if (this.options.clearOnSubmit !== 'none') {
-				if (this.options.clearOnSubmit === 'errors-and-message' || this.options.clearOnSubmit === 'errors') {
+			if (this.options.clearOnSubmit !== "none") {
+				if (
+					this.options.clearOnSubmit === "errors-and-message" ||
+					this.options.clearOnSubmit === "errors"
+				) {
 					// this.remoteForm.issues = {}
 				}
 			}
 
 			// Submit the form
 			await submit();
-			form.reset()
-			
+			form.reset();
 		} catch (error) {
 			// Handle submission errors - SvelteKit will populate form.issues automatically
-			console.error('Form submission error:', error);
+			console.error("Form submission error:", error);
 		} finally {
 			// Handle post-submit actions
 			setTimeout(() => {
 				if (this.remoteForm.issues && Object.keys(this.remoteForm.issues).length > 0) {
 					// Handle error focusing and scrolling
-					if (this.options.scrollToError !== 'off' && this.options.scrollToError !== false) {
+					if (this.options.scrollToError !== "off" && this.options.scrollToError !== false) {
 						scrollToError(form, this.options.scrollToError);
 					}
-					
+
 					if (this.options.autoFocusOnError !== false) {
 						autoFocusOnError(form, this.options.autoFocusOnError);
 					}
@@ -297,39 +317,40 @@ export class Remoform<TSchema extends StandardSchemaV1 = StandardSchemaV1> {
 		}
 	};
 
-	private createValidationHandler = (eventType: 'input' | 'blur' | 'change') => {
+	private createValidationHandler = (eventType: "input" | "blur" | "change") => {
 		return (event: Event) => {
 			const target = event.target as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
 			if (!target?.name) return;
-			
+
 			// Check if this is a sensitive field (underscore prefix) - SvelteKit feature
-			const isSensitive = target.name.startsWith('_');
-			
+			const isSensitive = target.name.startsWith("_");
+
 			// Validate based on validation method using SvelteKit's form.validate()
-			const shouldValidate = 
-				this.options.validationMethod === 'auto' ||
-				(this.options.validationMethod === 'oninput' && eventType === 'input') ||
-				(this.options.validationMethod === 'onblur' && eventType === 'blur') ||
-				(this.options.validationMethod === 'onchange' && eventType === 'change');
-			
-			if (shouldValidate && this.remoteForm.validate) this.remoteForm.validate({ includeUntouched: this.options?.includeUntouched || false });
+			const shouldValidate =
+				this.options.validationMethod === "auto" ||
+				(this.options.validationMethod === "oninput" && eventType === "input") ||
+				(this.options.validationMethod === "onblur" && eventType === "blur") ||
+				(this.options.validationMethod === "onchange" && eventType === "change");
+
+			if (shouldValidate && this.remoteForm.validate)
+				this.remoteForm.validate({ includeUntouched: this.options?.includeUntouched || false });
 		};
 	};
 
 	private get formEventHandlers() {
 		return {
-			...(this.options.validationMethod !== 'onsubmit' && {
-				oninput: this.createValidationHandler('input'),
-				onblur: this.createValidationHandler('blur'),
-				onchange: this.createValidationHandler('change')
-			})
+			...(this.options.validationMethod !== "onsubmit" && {
+				oninput: this.createValidationHandler("input"),
+				onblur: this.createValidationHandler("blur"),
+				onchange: this.createValidationHandler("change"),
+			}),
 		};
 	}
 
 	// Enhanced field utility that works with schema-based required detection
 	public isFieldRequired = (fieldName: string): boolean => {
 		// Remove underscore prefix for sensitive fields when checking requirements
-		const cleanFieldName = fieldName.startsWith('_') ? fieldName.slice(1) : fieldName;
+		const cleanFieldName = fieldName.startsWith("_") ? fieldName.slice(1) : fieldName;
 		return this.requiredFields.has(cleanFieldName);
 	};
 

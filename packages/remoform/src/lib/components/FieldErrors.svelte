@@ -1,8 +1,7 @@
 <script lang="ts">
-	import { getFieldContext } from '../form.svelte.js';
+	import { getFieldContext } from "../form.svelte.js";
 
 	const fieldContext = getFieldContext();
-
 </script>
 
 {#if fieldContext.hasErrors}
@@ -17,7 +16,7 @@
 	.remoform-field-errors {
 		margin-top: 0.25rem;
 	}
-	
+
 	.remoform-error {
 		color: #ef4444;
 		font-size: 0.875rem;
