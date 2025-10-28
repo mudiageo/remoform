@@ -265,7 +265,7 @@ export class Remoform<TSchema extends StandardSchemaV1 = StandardSchemaV1> {
 			if (this.options.multipleSubmits === 'prevent' && this.remoteForm.pending) {
 				return;
 			}
-			alert('enhace running')
+			console.log('enhance running')
 			// Clear errors/messages based on clearOnSubmit option
 			if (this.options.clearOnSubmit !== 'none') {
 				if (this.options.clearOnSubmit === 'errors-and-message' || this.options.clearOnSubmit === 'errors') {
