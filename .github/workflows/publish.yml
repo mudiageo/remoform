@@ -7,6 +7,9 @@ on:
         description: 'Tag to publish'
         required: true
         type: string
+  release:
+    types: [created]
+
 
 jobs:
   publish:

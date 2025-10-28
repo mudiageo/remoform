@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
     paths:
-      - 'apps/docs/**'
+      - 'docs/**'
       - 'packages/**'
       - '.github/workflows/docs.yml'
   workflow_dispatch:
