@@ -12,4 +12,10 @@ export { default as Description } from "./components/Description.svelte";
 export { default as Fieldset } from "./components/Fieldset.svelte";
 export { default as Legend } from "./components/Legend.svelte";
 
+// Export simplified components
+export { default as Input } from "./components/Input.svelte";
+export { default as TextField } from "./components/TextField.svelte";
+export { default as NumberField } from "./components/NumberField.svelte";
+export { default as TextareaField } from "./components/TextareaField.svelte";
+
 export * from "./form.svelte.js";

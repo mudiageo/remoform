@@ -19,8 +19,71 @@ npm i remoform valibot
 - **Type Safety**: Full TypeScript support with schema inference
 - **Accessible**: Built-in accessibility features and ARIA attributes
 - **Framework Agnostic**: Works with any validation library (Zod, Valibot, etc.)
+- **Simplified API**: Multiple API levels from ultra-simple to fully customizable
 
-## Usage
+## Quick Start - Simplified API
+
+Remoform offers multiple API levels. Start simple and add complexity only when needed:
+
+### Ultra-Simple (Recommended for most cases)
+
+```svelte
+<script>
+	import { createForm, Input, TextField, NumberField, TextareaField } from "remoform";
+	import { createUser } from "./demo.remote.js";
+	
+	const form = createForm(createUser, { schema });
+</script>
+
+<form {...form.remoteForm}>
+	<!-- Single-line components with auto-inferred types -->
+	<Input {form} name="email" label="Email" description="We'll send updates" />
+	<TextField {form} name="name" label="Full Name" />
+	<NumberField {form} name="age" label="Age" />
+	<TextareaField {form} name="bio" label="Bio" rows={4} />
+	
+	<button type="submit">Submit</button>
+</form>
+```
+
+### Medium Complexity (More control)
+
+```svelte
+<script>
+	import { createForm, Field, Label, Control, Description, FieldErrors } from "remoform";
+</script>
+
+<form {...form.remoteForm}>
+	<!-- Types are auto-inferred from schema! -->
+	<Field {form} name="email">
+		<Label>Email</Label>
+		<Control>
+			{#snippet children({ props })}
+				<input {...props} />
+			{/snippet}
+		</Control>
+		<Description>We'll send you updates</Description>
+		<FieldErrors />
+	</Field>
+</form>
+```
+
+### Full Control (Maximum flexibility)
+
+```svelte
+<!-- Use custom components, override types, add custom logic -->
+<Field {form} name="email" type="email">
+	<CustomLabel />
+	<Control>
+		{#snippet children({ props })}
+			<CustomInput {...props} customProp="value" />
+		{/snippet}
+	</Control>
+	<CustomErrors />
+</Field>
+```
+
+## Detailed Usage
 
 #### 1. Define your form schema
 
