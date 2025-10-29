@@ -10,7 +10,13 @@
 </script>
 
 {#if hasErrors}
-	<div id={fieldContext.errorId} class="remoform-field-errors" role="alert" aria-live="polite">
+	<div 
+		id={fieldContext.errorId} 
+		class="remoform-field-errors" 
+		role="alert" 
+		aria-live="polite"
+		data-remoform-errors
+	>
 		{#each errors as issue}
 			<div class="remoform-error">{issue.message}</div>
 		{/each}

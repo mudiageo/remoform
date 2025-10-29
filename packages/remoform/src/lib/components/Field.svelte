@@ -5,7 +5,8 @@
 		type RemoformFieldContext,
 		type FieldProps,
 	} from "../form.svelte.js";
-	import { onMount } from "svelte";
+	import Label from "./Label.svelte";
+	import FieldErrors from "./FieldErrors.svelte";
 
 	let { form, name, type, children }: FieldProps = $props();
 
@@ -89,10 +90,38 @@
 			});
 		});
 	});
+
+	// Check if children contains Label or FieldErrors components
+	let hasLabel = $state(false);
+	let hasFieldErrors = $state(false);
+
+	$effect(() => {
+		if (!fieldElement) return;
+		
+		// Check if Label component exists in children
+		hasLabel = fieldElement.querySelector('[data-remoform-label]') !== null;
+		
+		// Check if FieldErrors component exists in children
+		hasFieldErrors = fieldElement.querySelector('[data-remoform-errors]') !== null;
+	});
+
+	// Get auto-label from form configuration
+	const autoLabel = $derived(form.options.autoLabels ? form.getAutoLabel(name) : null);
+	const shouldShowErrors = $derived(form.options.showErrors && !hasFieldErrors);
 </script>
 
 <div class="remoform-field" data-field={name} bind:this={fieldElement}>
+	<!-- Auto-generate label if autoLabels is enabled and no Label component provided -->
+	{#if autoLabel && !hasLabel}
+		<Label>{autoLabel}</Label>
+	{/if}
+
 	{@render children()}
+
+	<!-- Auto-show errors if showErrors is enabled and no FieldErrors component provided -->
+	{#if shouldShowErrors}
+		<FieldErrors />
+	{/if}
 </div>
 
 <style>

@@ -136,6 +136,11 @@ export interface CreateFormOptions<TSchema extends StandardSchemaV1 = StandardSc
 	autoFocusOnError?: "detect" | boolean;
 	errorSelector?: string;
 	selectErrorText?: boolean;
+
+	// Form-level UI configuration (Option 3)
+	autoLabels?: boolean; // Automatically generate labels from field names
+	showErrors?: boolean; // Show errors by default for all fields
+	labelTransform?: (fieldName: string) => string; // Custom label transformation function
 }
 
 // Extract required fields from a StandardSchema
@@ -275,6 +280,8 @@ export class Remoform<TSchema extends StandardSchemaV1 = StandardSchemaV1> {
 			errorSelector: '[aria-invalid="true"]',
 			selectErrorText: true,
 			resetForm: false,
+			autoLabels: false,
+			showErrors: true,
 			...options,
 		};
 
@@ -434,6 +441,26 @@ export class Remoform<TSchema extends StandardSchemaV1 = StandardSchemaV1> {
 		const inferredType = inferFieldType(this.options.schema, fieldPath);
 		this.fieldTypes.set(fieldPath, inferredType);
 		return inferredType;
+	}
+
+	// Generate label from field name (Option 3)
+	public getAutoLabel(fieldName: string): string {
+		// Use custom transform if provided
+		if (this.options.labelTransform) {
+			return this.options.labelTransform(fieldName);
+		}
+
+		// Remove underscore prefix for sensitive fields
+		const cleanName = fieldName.startsWith("_") ? fieldName.slice(1) : fieldName;
+		
+		// Convert camelCase or snake_case to Title Case
+		return cleanName
+			.replace(/([A-Z])/g, ' $1') // Add space before capitals
+			.replace(/_/g, ' ') // Replace underscores with spaces
+			.trim()
+			.split(' ')
+			.map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+			.join(' ');
 	}
 }
 

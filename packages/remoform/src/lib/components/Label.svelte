@@ -6,7 +6,12 @@
 	const fieldContext = getFieldContext();
 </script>
 
-<label for={fieldContext.fieldId} id={fieldContext.labelId} class="remoform-label">
+<label 
+	for={fieldContext.fieldId} 
+	id={fieldContext.labelId} 
+	class="remoform-label"
+	data-remoform-label
+>
 	{@render children()}
 </label>
 
