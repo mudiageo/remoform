@@ -23,9 +23,41 @@ npm i remoform valibot
 
 ## Quick Start - Simplified API
 
-Remoform offers multiple API levels. Start simple and add complexity only when needed:
+Remoform offers **four different API levels** to match your needs. Start simple and add complexity only when needed:
 
-### Ultra-Simple (Recommended for most cases)
+### 1. Form-Level Configuration (Least code!)
+
+Configure once at the form level, then just write inputs:
+
+```svelte
+<script>
+	import { createForm, Field } from "remoform";
+	import { createUser } from "./demo.remote.js";
+	
+	const form = createForm(createUser, { 
+		schema,
+		autoLabels: true,  // Auto-generate labels from field names
+		showErrors: true   // Auto-show errors
+	});
+</script>
+
+<form {...form.remoteForm}>
+	<!-- Just the field and input - labels and errors are automatic! -->
+	<Field {form} name="email">
+		<input type="text" />
+	</Field>
+	
+	<Field {form} name="firstName">
+		<input type="text" />
+	</Field>
+	
+	<button type="submit">Submit</button>
+</form>
+```
+
+### 2. Ultra-Simple Components
+
+Single-line components with everything built-in:
 
 ```svelte
 <script>
@@ -46,7 +78,28 @@ Remoform offers multiple API levels. Start simple and add complexity only when n
 </form>
 ```
 
-### Medium Complexity (More control)
+### 3. Direct Input (No Control wrapper)
+
+Field automatically binds to direct child inputs:
+
+```svelte
+<script>
+	import { createForm, Field, Label, FieldErrors } from "remoform";
+</script>
+
+<form {...form.remoteForm}>
+	<!-- No Control wrapper needed! -->
+	<Field {form} name="email">
+		<Label>Email</Label>
+		<input type="text" />
+		<FieldErrors />
+	</Field>
+</form>
+```
+
+### 4. Full Control (Maximum flexibility)
+
+Use Control component with snippets for complete customization:
 
 ```svelte
 <script>
@@ -66,21 +119,6 @@ Remoform offers multiple API levels. Start simple and add complexity only when n
 		<FieldErrors />
 	</Field>
 </form>
-```
-
-### Full Control (Maximum flexibility)
-
-```svelte
-<!-- Use custom components, override types, add custom logic -->
-<Field {form} name="email" type="email">
-	<CustomLabel />
-	<Control>
-		{#snippet children({ props })}
-			<CustomInput {...props} customProp="value" />
-		{/snippet}
-	</Control>
-	<CustomErrors />
-</Field>
 ```
 
 ## Detailed Usage
