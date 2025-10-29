@@ -139,7 +139,7 @@ export const createUser = form(
 
 <!-- The form object can be spread directly, providing all HTML attributes -->
 <form {...form.remoteForm} class="example-form">
-	<Field {form} name="email">
+	<Field {form} name="email" type="text">
 		<Label>Email Address</Label>
 		<Control>
 			{#snippet children({ props })}
@@ -150,22 +150,22 @@ export const createUser = form(
 		<FieldErrors />
 	</Field>
 
-	<Field {form} name="name">
+	<Field {form} name="name" type="text">
 		<Label>Full Name</Label>
 		<Control>
 			{#snippet children({ props })}
-				<input type="text" {...props} class="input" />
+				<input {...props} class="input" />
 			{/snippet}
 		</Control>
 		<Description>Enter your full name</Description>
 		<FieldErrors />
 	</Field>
 
-	<Field {form} name="age">
+	<Field {form} name="age" type="number">
 		<Label>Age</Label>
 		<Control>
 			{#snippet children({ props })}
-				<input type="number" {...props} class="input" />
+				<input {...props} class="input" />
 			{/snippet}
 		</Control>
 		<Description>Must be 18 or older</Description>
@@ -173,7 +173,7 @@ export const createUser = form(
 	</Field>
 
 	<!-- Sensitive field with underscore prefix -->
-	<Field {form} name="_password">
+	<Field {form} name="_password" type="text">
 		<Label>Password</Label>
 		<Control>
 			{#snippet children({ props })}
@@ -184,7 +184,7 @@ export const createUser = form(
 		<FieldErrors />
 	</Field>
 
-	<Field {form} name="bio">
+	<Field {form} name="bio" type="text">
 		<Label>Bio (Optional)</Label>
 		<Control>
 			{#snippet children({ props })}
@@ -204,6 +204,40 @@ export const createUser = form(
 		<p>User ID: {form.remoteForm.result.userId}</p>
 	</div>
 {/if}
+```
+
+## Automatic Type Inference
+
+Remoform automatically infers input types from your schema! When you provide a schema to `createForm`, the library will:
+- Detect `number` types and use `type="number"`
+- Detect `boolean` types and use checkboxes
+- Detect `File` types and use file inputs
+- Default to `type="text"` for strings
+
+No need to specify `type` on your fields in most cases:
+
+```svelte
+<Field {form} name="age">  <!-- Automatically infers type="number" -->
+  <Label>Age</Label>
+  <Control>
+    {#snippet children({ props })}
+      <input {...props} />
+    {/snippet}
+  </Control>
+</Field>
+```
+
+You can still override the inferred type when needed:
+
+```svelte
+<Field {form} name="email" type="email">  <!-- Override to use email input -->
+  <Label>Email</Label>
+  <Control>
+    {#snippet children({ props })}
+      <input {...props} />
+    {/snippet}
+  </Control>
+</Field>
 ```
 
 ## Query Functions for Data Fetching
@@ -247,6 +281,128 @@ const form = createForm(remoteFunction, {
 	validationMethod: "oninput", // When to validate ('oninput', 'onblur', etc.)
 	scrollToError: "smooth", // Scroll behavior on validation errors
 });
+```
+
+## Accessing Field Data
+
+You can access individual field data using the `fields` API from the form:
+
+```svelte
+<script>
+	const form = createForm(createUser, options);
+
+	// Access a specific field
+	const emailField = $derived(form.fields.email);
+	
+	// Get field value
+	const emailValue = $derived(emailField?.value());
+	
+	// Get field validation issues
+	const emailIssues = $derived(emailField?.issues() || []);
+	
+	// Check if field has errors
+	const hasEmailError = $derived(emailIssues.length > 0);
+</script>
+
+{#if hasEmailError}
+	<p>Email has errors: {emailIssues[0].message}</p>
+{/if}
+```
+
+## Working with Different Input Types
+
+### Radio Buttons and Checkboxes
+
+For radio and checkbox inputs that belong to the same field, pass the value as a second parameter to the `type` prop:
+
+```svelte
+<script>
+	import { createForm, Field, Control, Label } from "remoform";
+	import { survey } from "./demo.remote.js";
+
+	const form = createForm(survey);
+</script>
+
+<form {...form.remoteForm}>
+	<h2>Which operating system do you use?</h2>
+	{#each ['windows', 'mac', 'linux'] as os}
+		<Field {form} name="operatingSystem">
+			<Label>
+				<Control type="radio" value={os}>
+					{#snippet children({ props })}
+						<input {...props} />
+					{/snippet}
+				</Control>
+				{os}
+			</Label>
+		</Field>
+	{/each}
+
+	<h2>Which languages do you write code in?</h2>
+	{#each ['html', 'css', 'js'] as language}
+		<Field {form} name="languages">
+			<Label>
+				<Control type="checkbox" value={language}>
+					{#snippet children({ props })}
+						<input {...props} />
+					{/snippet}
+				</Control>
+				{language}
+			</Label>
+		</Field>
+	{/each}
+
+	<button>Submit</button>
+</form>
+```
+
+### Select Inputs
+
+```svelte
+<Field {form} name="operatingSystem">
+	<Label>Operating System</Label>
+	<Control type="select">
+		{#snippet children({ props })}
+			<select {...props}>
+				<option>windows</option>
+				<option>mac</option>
+				<option>linux</option>
+			</select>
+		{/snippet}
+	</Control>
+</Field>
+
+<!-- Multiple select -->
+<Field {form} name="languages">
+	<Label>Programming Languages</Label>
+	<Control type="select multiple">
+		{#snippet children({ props })}
+			<select {...props} multiple>
+				<option>html</option>
+				<option>css</option>
+				<option>js</option>
+			</select>
+		{/snippet}
+	</Control>
+</Field>
+```
+
+### File Inputs
+
+```svelte
+<Field {form} name="photo">
+	<Label>Profile Photo</Label>
+	<Control type="file">
+		{#snippet children({ props })}
+			<input {...props} />
+		{/snippet}
+	</Control>
+</Field>
+
+<!-- Don't forget to add enctype to the form -->
+<form {...form.remoteForm} enctype="multipart/form-data">
+	<!-- fields -->
+</form>
 ```
 
 Check out the [documentation](https://remoform.dev) for more advanced usage and examples.

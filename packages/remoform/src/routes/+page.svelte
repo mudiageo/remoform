@@ -26,7 +26,7 @@
 		scrollToError: "smooth",
 	});
 </script>
-
+d
 <div class="container">
 	<h1>Remoform - SvelteKit Remote Functions</h1>
 	<p>A modern form library built on SvelteKit's remote functions API with Valibot validation</p>
@@ -40,7 +40,7 @@
 				<Label>Email Address</Label>
 				<Control>
 					{#snippet children({ props })}
-						<input type="email" {...props} class="input" />
+						<input {...props} class="input" />
 					{/snippet}
 				</Control>
 				<Description>We'll send you important updates via email.</Description>
@@ -51,7 +51,7 @@
 				<Label>Full Name</Label>
 				<Control>
 					{#snippet children({ props })}
-						<input type="text" {...props} class="input" />
+						<input {...props} class="input" />
 					{/snippet}
 				</Control>
 				<Description>Enter your full name as it appears on official documents</Description>
@@ -62,7 +62,7 @@
 				<Label>Age</Label>
 				<Control>
 					{#snippet children({ props })}
-						<input type="number" {...props} class="input" />
+						<input {...props} class="input" />
 					{/snippet}
 				</Control>
 				<Description>Must be 18 or older to create an account</Description>

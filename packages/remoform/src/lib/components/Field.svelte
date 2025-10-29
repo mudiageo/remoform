@@ -6,16 +6,35 @@
 		type FieldProps,
 	} from "../form.svelte.js";
 
-	let { form, name, children }: FieldProps = $props();
+	let { form, name, type, children }: FieldProps = $props();
 
 	const fieldId = generateId("field");
 	const labelId = generateId("label");
 	const descriptionId = generateId("description");
 	const errorId = generateId("error");
 
-	const hasErrors = $derived((form.remoteForm.issues?.[name]?.length ?? 0) > 0);
-	const errors = $derived(form.remoteForm.issues?.[name] || []);
-	const value = $derived(form.remoteForm.input?.[name]);
+	// Get field using the accessor
+	const field = $derived(form.fields[name]);
+	const fieldIssues = $derived(field?.issues() || []);
+	const hasErrors = $derived(fieldIssues.length > 0);
+
+	// Infer type from schema if not provided
+	const fieldType = $derived(type ?? form.getFieldType(name));
+
+	// Compute props with SvelteKit's field.as(type) and enhance with accessibility
+	const props = $derived({
+		...field?.as(fieldType),
+		id: fieldId,
+		"aria-describedby": [
+			hasErrors ? errorId : null,
+			descriptionId,
+		]
+			.filter(Boolean)
+			.join(" "),
+		"aria-labelledby": labelId,
+		"data-remoform-control": name,
+		"data-remoform-error": hasErrors ? errorId : undefined,
+	});
 
 	const fieldContext: RemoformFieldContext = $derived({
 		name,
@@ -24,13 +43,7 @@
 		labelId,
 		descriptionId,
 		errorId,
-		get hasErrors() {
-			return (form.remoteForm.issues?.[name]?.length ?? 0) > 0;
-		},
-		get errors() {
-			return form.remoteForm.issues?.[name] || [];
-		},
-		value,
+		props,
 	});
 
 	setFieldContext(() => fieldContext);

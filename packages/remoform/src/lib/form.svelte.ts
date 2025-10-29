@@ -21,9 +21,7 @@ export interface RemoformFieldContext {
 	labelId: string;
 	descriptionId: string;
 	errorId: string;
-	hasErrors: boolean;
-	errors: Array<{ message: string }>;
-	value: any;
+	props: Record<string, any>;
 }
 
 // Control props interface with proper typing
@@ -43,6 +41,7 @@ export interface ControlProps {
 export interface FieldProps {
 	form: Remoform;
 	name: string;
+	type?: 'text' | 'number' | 'checkbox' | 'radio' | 'file' | 'select' | 'select multiple';
 	children: Snippet;
 }
 
@@ -152,14 +151,14 @@ function extractRequiredFields(schema: StandardSchemaV1): Set<string> {
 		return requiredFields;
 	}
 
-	if (!result.success) {
+	// Check if validation failed
+	if ('issues' in result && result.issues) {
 		for (const issue of result.issues) {
 			if (issue.path && issue.path.length > 0) {
 				const fieldName = String(issue.path[0]);
 				// Common messages that indicate required fields
 				if (
 					issue.message?.toLowerCase().includes("required") ||
-					issue.code === "required" ||
 					issue.message?.toLowerCase().includes("missing")
 				) {
 					requiredFields.add(fieldName);
@@ -169,6 +168,46 @@ function extractRequiredFields(schema: StandardSchemaV1): Set<string> {
 	}
 
 	return requiredFields;
+}
+
+// Infer field type from schema
+function inferFieldType(schema: StandardSchemaV1, fieldPath: string): string {
+	// Try to validate with different types of data to infer the field type
+	const testData: Record<string, any> = {};
+	
+	// Test with a number
+	testData[fieldPath] = 123;
+	const numberResult = schema["~standard"].validate(testData);
+	if (!(numberResult instanceof Promise) && 'value' in numberResult) {
+		if (typeof numberResult.value?.[fieldPath] === 'number') {
+			return 'number';
+		}
+	}
+	
+	// Test with a boolean
+	testData[fieldPath] = true;
+	const boolResult = schema["~standard"].validate(testData);
+	if (!(boolResult instanceof Promise) && 'value' in boolResult) {
+		if (typeof boolResult.value?.[fieldPath] === 'boolean') {
+			return 'checkbox';
+		}
+	}
+	
+	// Test with a File object (in a try-catch since File might not exist in all environments)
+	try {
+		testData[fieldPath] = new File([''], 'test.txt');
+		const fileResult = schema["~standard"].validate(testData);
+		if (!(fileResult instanceof Promise) && 'value' in fileResult) {
+			if (fileResult.value?.[fieldPath] instanceof File) {
+				return 'file';
+			}
+		}
+	} catch (e) {
+		// File not available in this environment
+	}
+	
+	// Default to text
+	return 'text';
 }
 
 // Error handling utilities
@@ -215,6 +254,7 @@ export class Remoform<TSchema extends StandardSchemaV1 = StandardSchemaV1> {
 	private originalRemoteForm: RemoformRemoteForm;
 	public remoteForm: RemoformRemoteForm;
 	private requiredFields: Set<string>;
+	private fieldTypes: Map<string, string>;
 	private formName: string;
 	public readonly options: CreateFormOptions<TSchema>;
 
@@ -224,6 +264,7 @@ export class Remoform<TSchema extends StandardSchemaV1 = StandardSchemaV1> {
 		}
 
 		this.originalRemoteForm = originalRemoteForm;
+		this.fieldTypes = new Map<string, string>();
 		this.options = {
 			validationMethod: "auto",
 			clearOnSubmit: "errors-and-message",
@@ -361,6 +402,39 @@ export class Remoform<TSchema extends StandardSchemaV1 = StandardSchemaV1> {
 	public get name(): string {
 		return this.formName;
 	}
+
+	// Expose the field accessor from the RemoteForm
+	// Access like: form.fields.fieldName or form.field.fieldName
+	public get field() {
+		return this.remoteForm.field;
+	}
+	
+	// Alias for convenience - allows form.fields[name] syntax
+	public get fields() {
+		return new Proxy({} as any, {
+			get: (target, prop: string) => {
+				return this.remoteForm.field(prop);
+			}
+		});
+	}
+
+	// Get inferred or cached field type
+	public getFieldType(fieldPath: string): string {
+		// Check if we've already inferred this field's type
+		if (this.fieldTypes.has(fieldPath)) {
+			return this.fieldTypes.get(fieldPath)!;
+		}
+
+		// If no schema provided, default to 'text'
+		if (!this.options.schema) {
+			return 'text';
+		}
+
+		// Infer the type from schema
+		const inferredType = inferFieldType(this.options.schema, fieldPath);
+		this.fieldTypes.set(fieldPath, inferredType);
+		return inferredType;
+	}
 }
 
 // Helper function to create a Remoform instance
@@ -369,4 +443,23 @@ export function createForm<TSchema extends StandardSchemaV1 = StandardSchemaV1>(
 	options: CreateFormOptions<TSchema> = {}
 ): Remoform {
 	return new Remoform<TSchema>(originalRemoteForm, options);
+}
+
+/**
+ * Helper to access nested field from form.fields using path notation
+ * e.g., getFieldByPath(form.fields, 'user.email') or getFieldByPath(form.fields, 'items[0].name')
+ */
+export function getFieldByPath(fields: any, path: string): any {
+	const parts = path.split(/[\.\[\]]+/).filter(Boolean);
+	let current = fields;
+	
+	for (const part of parts) {
+		if (current && typeof current === 'object' && part in current) {
+			current = current[part];
+		} else {
+			return undefined;
+		}
+	}
+	
+	return current;
 }

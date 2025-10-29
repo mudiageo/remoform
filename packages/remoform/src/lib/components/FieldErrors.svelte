@@ -2,11 +2,16 @@
 	import { getFieldContext } from "../form.svelte.js";
 
 	const fieldContext = getFieldContext();
+	
+	// Get field issues using the new fields API
+	const field = $derived(fieldContext.form.fields[fieldContext.name]);
+	const errors = $derived(field?.issues() || []);
+	const hasErrors = $derived(errors.length > 0);
 </script>
 
-{#if fieldContext.hasErrors}
+{#if hasErrors}
 	<div id={fieldContext.errorId} class="remoform-field-errors" role="alert" aria-live="polite">
-		{#each fieldContext.errors as issue}
+		{#each errors as issue}
 			<div class="remoform-error">{issue.message}</div>
 		{/each}
 	</div>

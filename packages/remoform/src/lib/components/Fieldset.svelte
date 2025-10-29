@@ -13,9 +13,9 @@
 	const descriptionId = generateId("fieldset-description");
 	const errorId = generateId("fieldset-error");
 
-	const hasErrors = $derived((form.remoteForm.issues?.[name]?.length ?? 0) > 0);
-	const errors = $derived(form.remoteForm.issues?.[name] || []);
-	const value = $derived(form.remoteForm.input?.[name]);
+	// Get field using the fields API
+	const field = $derived(form.fields[name]);
+	const hasErrors = $derived((field?.issues()?.length ?? 0) > 0);
 
 	const fieldContext: RemoformFieldContext = $derived({
 		name,
@@ -24,9 +24,6 @@
 		labelId: legendId,
 		descriptionId,
 		errorId,
-		hasErrors,
-		errors,
-		value,
 	});
 
 	setFieldContext(() => fieldContext);
@@ -39,7 +36,7 @@
 	id={fieldsetId}
 	class="remoform-fieldset"
 	data-field={name}
-	aria-describedby={fieldContext.hasErrors ? errorId : descriptionId}
+	aria-describedby={hasErrors ? errorId : descriptionId}
 >
 	{@render children()}
 </fieldset>
